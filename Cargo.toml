@@ -1,0 +1,10 @@
+[package]
+name = "ce-net-net"
+version = "0.1.0"
+edition = "2021"
+license = "Apache-2.0"
+publish = false
+description = "ce-net as cell systems: CORE, APPROVALS, CONTROL_ROOM, FOREMAN, each one net! value, CE_NET their sum; the tabs of apps.ce-net.com come only from here"
+
+[dependencies]
+cell-net = { git = "https://github.com/Leif-Rydenfalk/cell-stack", rev = "046f906afdd00a26e351b53f2fd6b0db833dffeb" }
