@@ -5,6 +5,10 @@
 //! chain holds the tab's `needs` and its `shell` cell answers HealthOp by name (section 3). Approvals is its own
 //! system here, not a part of Foreman: Foreman's tab is one tab among the others.
 //!
+//! SEARCH is one box over everything: search.hybrid (private and internal, filtered by the viewer's exact read grants)
+//! and search.mesh (every node's own index, merged). Its tab's shell is search.hybrid itself: the tab is live exactly
+//! while the index answers. leif-desk (2 cores, 3 GB) cannot hold search.hybrid's index yet, so it runs 1 of 2.
+//!
 //! Serving nodes: foreman-ops-1 and leif-desk (the Mac votes and holds a state.store replica only; Debian rejoins as a
 //! standby). `replicas 2` is what each cell wants; site.cellmap shows wanted against running, per node.
 #![forbid(unsafe_code)]
@@ -55,7 +59,15 @@ net! { pub FOREMAN;
     tab "Foreman" route "/foreman/" order 10 needs "foreman.shell:open" shell foreman.shell@1;
 }
 
-net! { pub CE_NET; include [CORE, APPROVALS, CONTROL_ROOM, FOREMAN]; }
+net! { pub SEARCH;
+    needs [CORE];
+    node foreman-ops-1; node leif-desk;
+    cell search.hybrid@1 replicas 2;
+    cell search.mesh@1 replicas 2;
+    tab "Search" route "/search/" order 15 needs "search.hybrid:find" shell search.hybrid@1;
+}
+
+net! { pub CE_NET; include [CORE, APPROVALS, CONTROL_ROOM, FOREMAN, SEARCH]; }
 
 /// The system a cell belongs to, by its api name.
 pub fn system_of(api: &str) -> Option<&'static str> {
