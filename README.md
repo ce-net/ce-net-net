@@ -7,5 +7,11 @@ each one `net!` value (repo:cell-stack crates/cell-net: `include`, `needs [SYSTE
 The tabs of apps.ce-net.com come only from here: repo:apps-shell keeps a tab for a viewer when their chain holds its
 `needs` and its `shell` cell answers HealthOp by name. repo:site-cellmap shows every cell of every system per node.
 
-`cargo test`: four systems, every cell wants two replicas over foreman-ops-1 and leif-desk, tabs in order.
+Foreman is the `include` of TALK, LANES, BOARD, VOICE, MEMORY, OUTBOUND (with WECHAT, the Mac), PROMPTS, SCHEDULE
+(repo:ce/docs/FOREMAN-ON-CELLS.md step 1, description only). `NODES` gives each node a class: foreman-ops-1 and
+leif-desk `Datacenter`, Debian `Worker` (lane.host only). `PLANNED`, `LEADERS`, `RECORDS`, `RESIDENT` mark cells;
+a name no system places fails the build.
+
+`cargo test`: every cell in exactly one system, no leader or record cell off a datacenter node, placement
+foreman-ops-1 first, every unpinned cell wants two replicas, tabs in order.
 Apache-2.0.
