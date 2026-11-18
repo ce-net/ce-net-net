@@ -101,5 +101,5 @@ pub const HOME_SLOTS: &[SlotLine] = &[
     SlotLine { name: "promises", system: "CRM", cell: "crm.promises", major: 1, view: "home::PromisesDue", area: Area::Main, order: 20, needs: "crm.promises:read", when: Some("crm.promises/List") },
     SlotLine { name: "approve", system: "HOME", cell: "approve.inbox", major: 1, view: "approve.inbox::Pending", area: Area::Main, order: 5, needs: "approve.inbox:read", when: Some("approve.inbox/Badge") },
     SlotLine { name: "cells", system: "CORE", cell: "site.cellmap", major: 1, view: "site.cellmap::Summary", area: Area::Side, order: 50, needs: "site.cellmap:read", when: None },
-    SlotLine { name: "links", system: "HOME", cell: "home.shell", major: 1, view: "home::Links", area: Area::Side, order: 90, needs: "home.shell:open", when: None },
+    SlotLine { name: "links", system: "HOME", cell: "home.shell", major: 1, view: "home::Links", area: Area::Side, order: 90, needs: "home.links:read", when: None },
 ];
