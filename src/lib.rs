@@ -150,6 +150,16 @@ net! { pub FOREMAN;
     tab "Foreman" route "/foreman/" order 10 needs "foreman.shell:open" shell foreman.shell@1;
 }
 
+// net! allows one tab a system and wants the tab's shell in the same system, so the Feed tab is its own system (needs
+// FOREMAN) and holds feed.view@2, its shell. A shadow of the feed in /foreman/: the old feed stays live
+// (repo:ce docs/FOREMAN-AS-CELLS-V2-2026-11-18.md slice 1, package B).
+net! { pub FEED;
+    needs [FOREMAN];
+    node foreman-ops-1; node leif-desk;
+    cell feed.view@2 replicas 2;
+    tab "Feed" route "/feed/" order 11 needs "feed.view:read" shell feed.view@2;
+}
+
 net! { pub SEARCH;
     needs [CORE];
     node foreman-ops-1; node leif-desk;
@@ -186,7 +196,7 @@ net! { pub HOME;
     tab "Home" route "/home/" order 1 needs "home.shell:open" shell home.shell@1;
 }
 
-net! { pub CE_NET; include [HOME, CORE, APPROVALS, CONTROL_ROOM, FOREMAN, SEARCH, CRM, REFS]; }
+net! { pub CE_NET; include [HOME, CORE, APPROVALS, CONTROL_ROOM, FOREMAN, FEED, SEARCH, CRM, REFS]; }
 
 /// The system a cell belongs to, by its api name.
 pub fn system_of(api: &str) -> Option<&'static str> {
