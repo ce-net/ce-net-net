@@ -86,7 +86,9 @@ fn home_slots() {
         assert!(s.needs.contains(':') && !s.needs.contains('*'), "slot {}", s.name);
     }
     let links = HOME_SLOTS.iter().find(|s| s.name == "links").unwrap();
-    assert_eq!(links.needs, "home.links:read", "pinned links are their own right, not the Home tab's (CE-REF-OPENERS-AND-HOME 5.1)");
+    // a right of the cell that answers Layout, so home.shell sees it in the viewer grant minted for it (a home.links:*
+    // right would be cut from that grant); its own right, not the Home tab's, so one data right gives one slot
+    assert_eq!(links.needs, "home.shell:links");
     let tab = HOME.tab.expect("HOME offers a tab");
     assert_eq!((tab.title, tab.route, tab.order, tab.needs, tab.shell.name), ("Home", "/home/", 1, "home.shell:open", "home.shell"));
     assert_eq!(CE_NET.tabs()[0].1.route, "/home/", "Home is the first tab");
