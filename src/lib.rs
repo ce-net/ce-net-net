@@ -17,6 +17,9 @@
 pub use cell_net::{CellRef, CellSpec, Network, Tab};
 use cell_net::net;
 
+pub mod opens;
+pub use opens::{opens, Area, Mode, Opens, SlotLine, HOME_SLOTS};
+
 /// The nodes that serve apps.ce-net.com.
 pub const SERVING: &[&str] = &["foreman-ops-1", "leif-desk"];
 
@@ -155,7 +158,35 @@ net! { pub SEARCH;
     tab "Search" route "/search/" order 15 needs "search.hybrid:find" shell search.hybrid@1;
 }
 
-net! { pub CE_NET; include [CORE, APPROVALS, CONTROL_ROOM, FOREMAN, SEARCH]; }
+// The CRM cells (live on foreman-ops-1): their record views open `person:`, `promise:`, `call:` refs, and calls and
+// promises offer Home slots (opens.rs).
+net! { pub CRM;
+    needs [CORE];
+    node foreman-ops-1; node leif-desk;
+    cell crm.people@1 replicas 2;
+    cell crm.promises@1 replicas 2;
+    cell crm.calls@2 replicas 2;
+}
+
+// ce-ref, the only link (repo:ce/docs/CE-REF-OPENERS-AND-HOME-2026-11-18.md): where a thing is (ref.resolve), its
+// bytes by hash (ref.pin), and which view opens it for this viewer (open.with, reading opens.rs).
+net! { pub REFS;
+    needs [CORE];
+    node foreman-ops-1; node leif-desk;
+    cell ref.resolve@1 replicas 2;
+    cell ref.pin@1 replicas 2;
+    cell open.with@1 replicas 2;
+}
+
+// Leif's Home: home.shell owns a layout and nothing else; every panel is another cell's view (HOME_SLOTS, opens.rs).
+net! { pub HOME;
+    needs [CORE, APPROVALS, REFS];
+    node foreman-ops-1; node leif-desk;
+    cell home.shell@1 replicas 2;
+    tab "Home" route "/home/" order 1 needs "home.shell:open" shell home.shell@1;
+}
+
+net! { pub CE_NET; include [HOME, CORE, APPROVALS, CONTROL_ROOM, FOREMAN, SEARCH, CRM, REFS]; }
 
 /// The system a cell belongs to, by its api name.
 pub fn system_of(api: &str) -> Option<&'static str> {
