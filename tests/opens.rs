@@ -58,6 +58,7 @@ fn slice_1_table() {
     assert_eq!(view_of("assembly")[0], "apps.shell::Port");
     assert_eq!(view_of("map")[0], "apps.shell::Port");
     assert_eq!(view_of("web")[0], "apps.shell::Outside");
+    assert_eq!(view_of("view")[0], "apps.shell::Mount");
     assert_eq!(view_of("*"), ["ref.view::Raw"]);
     assert_eq!(view_of("image/png"), ["ref.view::Raw"]);
 }

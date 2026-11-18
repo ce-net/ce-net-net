@@ -52,10 +52,12 @@ pub const CRM_OPENS: &[Opens] = &[
     o("meet", "search.hybrid", 1, "ref.view::Record", 20, "search.hybrid:read:calls"),
 ];
 
-/// CORE: cells and nodes are ordinary refs ("browse all cells"); a `web:` ref is the outside web, said so.
+/// CORE: cells and nodes are ordinary refs ("browse all cells"); a `view:` ref mounts that view; a `web:` ref is the
+/// outside web, said so.
 pub const CORE_OPENS: &[Opens] = &[
     o("cell", "site.cellmap", 1, "site.cellmap::Cell", 50, "site.cellmap:read"),
     o("node", "site.cellmap", 1, "site.cellmap::Node", 50, "site.cellmap:read"),
+    o("view", "apps.shell", 1, "apps.shell::Mount", 50, ""),
     o("web", "apps.shell", 1, "apps.shell::Outside", 1, ""),
 ];
 
