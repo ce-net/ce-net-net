@@ -7,7 +7,7 @@ fn systems_every_unpinned_cell_twice_over_the_serving_nodes() {
     let names: Vec<&str> = CE_NET.systems().iter().skip(1).map(|s| s.name).collect();
     let mut want = vec!["HOME", "CORE", "APPROVALS", "CONTROL_ROOM", "FOREMAN"];
     want.extend(FOREMAN_SYSTEMS);
-    want.extend(["FEED", "FRONTEND", "SEARCH", "CRM", "REFS", "CONVERSATIONS", "ARCHITECTURE", "MAKE", "NOW", "BUSINESS", "OPS"]);
+    want.extend(["FEED", "FRONTEND", "SEARCH", "CRM", "REFS", "CONVERSATIONS", "ARCHITECTURE", "MAKE", "NOW", "BUSINESS", "OPS", "DEVENV"]);
     assert_eq!(names, want);
     for (sys, c) in CE_NET.all_cells() {
         match c.on {
@@ -26,7 +26,7 @@ fn approvals_is_its_own_system_and_foreman_one_tab_among_others() {
     assert_eq!(system_of("grant.bundle"), Some("APPROVALS"));
     assert!(!FOREMAN.cells.iter().any(|c| c.cell.name.starts_with("approve.") || c.cell.name == "grant.bundle"));
     let tabs: Vec<(&str, &str)> = CE_NET.tabs().iter().map(|(s, t)| (*s, t.route)).collect();
-    assert_eq!(tabs, [("HOME", "/home/"), ("NOW", "/now/"), ("BUSINESS", "/business-monitor/"), ("FOREMAN", "/foreman/"), ("FEED", "/feed/"), ("CONVERSATIONS", "/conversations/"), ("SEARCH", "/search/"), ("ARCHITECTURE", "/architecture/"), ("APPROVALS", "/approvals/"), ("CONTROL_ROOM", "/control-room/"), ("CORE", "/core/")]);
+    assert_eq!(tabs, [("HOME", "/home/"), ("NOW", "/now/"), ("BUSINESS", "/business-monitor/"), ("FOREMAN", "/foreman/"), ("FEED", "/feed/"), ("CONVERSATIONS", "/conversations/"), ("DEVENV", "/devenv/"), ("SEARCH", "/search/"), ("ARCHITECTURE", "/architecture/"), ("APPROVALS", "/approvals/"), ("CONTROL_ROOM", "/control-room/"), ("CORE", "/core/")]);
 }
 
 #[test]
@@ -182,4 +182,14 @@ fn ops_is_the_installed_ops_cells_and_has_no_tab() {
         assert_eq!(nodes_of(c.cell.name), vec!["foreman-ops-1", "leif-desk"]);
     }
     assert_eq!(system_of("health.check"), Some("OPS"));
+}
+
+/// DEVENV (repo:ce docs/LIVE-DEVENV-FINISH-2026-11-21.md): the Code tab at /devenv/, its shell dev.ws@1 on both
+/// serving nodes, needing dev.ws:open; a viewer without it gets neither the tab nor its name.
+#[test]
+fn devenv_is_the_code_tab_and_its_shell_is_dev_ws() {
+    assert_eq!(system_of("dev.ws"), Some("DEVENV"));
+    assert_eq!(DEVENV.nodes, SERVING);
+    let (_, t) = CE_NET.tabs().into_iter().find(|(s, _)| *s == "DEVENV").unwrap();
+    assert_eq!((t.title, t.route, t.needs, t.shell.name), ("Code", "/devenv/", "dev.ws:open", "dev.ws"));
 }

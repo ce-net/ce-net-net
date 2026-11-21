@@ -296,7 +296,18 @@ net! { pub OPS;
     cell net.apply@1 replicas 2 needs [net.plan@1, deploy.rollout@1];
 }
 
-net! { pub CE_NET; include [HOME, CORE, APPROVALS, CONTROL_ROOM, FOREMAN, FEED, FRONTEND, SEARCH, CRM, REFS, CONVERSATIONS, ARCHITECTURE, MAKE, NOW, BUSINESS, OPS]; }
+// The shared live workspace (repo:ce docs/LIVE-DEVENV-FINISH-2026-11-21.md, GitHub ce-net/live-devenv): the Code tab's
+// shell is dev.ws, the bridge cell beside each ws-node; it emerges for a viewer holding dev.ws:open once dev.ws answers
+// HealthOp by name. The page itself is ws-node's (apps.ce-net.com/devenv/, through work.show). Debian also runs a
+// ws-node and dev.ws (N1, the keys node) outside this placement; t3@1 (T3 Code as a cell) is ops-1 only and has no tab.
+net! { pub DEVENV;
+    needs [CORE];
+    node foreman-ops-1; node leif-desk;
+    cell dev.ws@1 replicas 2;
+    tab "Code" route "/devenv/" order 14 needs "dev.ws:open" shell dev.ws@1;
+}
+
+net! { pub CE_NET; include [HOME, CORE, APPROVALS, CONTROL_ROOM, FOREMAN, FEED, FRONTEND, SEARCH, CRM, REFS, CONVERSATIONS, ARCHITECTURE, MAKE, NOW, BUSINESS, OPS, DEVENV]; }
 
 /// The system a cell belongs to, by its api name.
 pub fn system_of(api: &str) -> Option<&'static str> {

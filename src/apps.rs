@@ -46,7 +46,7 @@ pub const APPS: &[App] = &[
     o("delegate", "Delegate", "/delegate/"),
     // work and operations
     a("me", "Me", "/me/"),
-    a("devenv", "Dev environment", "/devenv/"),
+    // devenv is the Code tab now (DEVENV in lib.rs), not a place
     a("secrets", "Secrets", "/secrets/"),
     a("grant", "Grant", "/grant/"),
     a("fleet", "Fleet", "/fleet/"),
