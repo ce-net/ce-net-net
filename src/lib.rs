@@ -162,6 +162,19 @@ net! { pub FEED;
     tab "Feed" route "/feed/" order 11 needs "feed.view:read" shell feed.view@2;
 }
 
+// The frontend as cells (repo:ce/docs/UI-AS-CELLS-2026-11-21.md, slice 1): site.serve@1 holds http.serve for
+// apps.ce-net.com/x/ and has no data right, page.compose@1 fits the pieces a viewer's chain covers, feed.render@1 is the
+// feed's render:html piece (feed.view@2 stays the data and the live view). No tab yet: /x/feed/ is a shadow beside /feed/
+// and /foreman/. Declared over both serving nodes like every system; installed on foreman-ops-1 only until step 2
+// (win-b591's mesh-wide install, repo:site-serve docs/SLICE-1.md).
+net! { pub FRONTEND;
+    needs [FEED];
+    node foreman-ops-1; node leif-desk;
+    cell site.serve@1 replicas 2;
+    cell page.compose@1 replicas 2;
+    cell feed.render@1 replicas 2;
+}
+
 net! { pub SEARCH;
     needs [CORE];
     node foreman-ops-1; node leif-desk;
@@ -241,7 +254,7 @@ net! { pub CONVERSATIONS;
     tab "Conversations" route "/conversations/" order 12 needs "ai.session:list" shell ai.session@1;
 }
 
-net! { pub CE_NET; include [HOME, CORE, APPROVALS, CONTROL_ROOM, FOREMAN, FEED, SEARCH, CRM, REFS, CONVERSATIONS, ARCHITECTURE, MAKE]; }
+net! { pub CE_NET; include [HOME, CORE, APPROVALS, CONTROL_ROOM, FOREMAN, FEED, FRONTEND, SEARCH, CRM, REFS, CONVERSATIONS, ARCHITECTURE, MAKE]; }
 
 /// The system a cell belongs to, by its api name.
 pub fn system_of(api: &str) -> Option<&'static str> {
