@@ -59,6 +59,10 @@ fn slice_1_table() {
     assert_eq!(view_of("map")[0], "apps.shell::Port");
     assert_eq!(view_of("web")[0], "apps.shell::Outside");
     assert_eq!(view_of("view")[0], "apps.shell::Mount");
+    assert_eq!(view_of("factory")[0], "factory.registry::Site");
+    assert_eq!(view_of("part"), ["parts.inventory::Card", "parts.source::Offers", "ref.view::Raw"]);
+    assert_eq!(view_of("printer")[0], "printers.health::Panel");
+    assert_eq!(view_of("tool")[0], "tool.run::Tool");
     assert_eq!(view_of("*"), ["ref.view::Raw"]);
     assert_eq!(view_of("image/png"), ["ref.view::Raw"]);
 }
@@ -80,7 +84,7 @@ fn spec(p: &str) -> u8 {
 #[test]
 fn home_slots() {
     let names: Vec<&str> = HOME_SLOTS.iter().map(|s| s.name).collect();
-    assert_eq!(names, ["calls", "promises", "approve", "cells", "links"]);
+    assert_eq!(names, ["search", "calls", "promises", "approve", "cells", "links"]);
     for s in HOME_SLOTS {
         assert!(system_of(s.cell).is_some(), "slot {} reads {}, which no system places", s.name, s.cell);
         assert!(s.needs.contains(':') && !s.needs.contains('*'), "slot {}", s.name);

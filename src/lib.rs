@@ -17,7 +17,9 @@
 pub use cell_net::{CellRef, CellSpec, Network, Tab};
 use cell_net::net;
 
+pub mod finds;
 pub mod opens;
+pub use finds::{finds, Finds, FINDS};
 pub use opens::{opens, Area, Mode, Opens, SlotLine, HOME_SLOTS};
 
 /// The nodes that serve apps.ce-net.com.
@@ -165,6 +167,11 @@ net! { pub SEARCH;
     node foreman-ops-1; node leif-desk;
     cell search.hybrid@1 replicas 2;
     cell search.mesh@1 replicas 2;
+    cell cell.search@1 replicas 2;
+    // the typed search page (repo:ce/docs/SEARCH-PAGE-2026-11-21.md): words to intents, then the sources asked as
+    // the viewer (finds.rs) and merged; both stateless
+    cell search.plan@1 replicas 2;
+    cell search.typed@1 replicas 2 needs [search.plan@1];
     tab "Search" route "/search/" order 15 needs "search.hybrid:find" shell search.hybrid@1;
 }
 
@@ -176,6 +183,20 @@ net! { pub CRM;
     cell crm.people@1 replicas 2;
     cell crm.promises@1 replicas 2;
     cell crm.calls@2 replicas 2;
+}
+
+// The things the search page finds as typed results (SEARCH-PAGE-2026-11-21 section 4): factories and suppliers,
+// parts in stock and their offers, printers, tools. Each cell owns its records and answers for the viewer itself.
+// Declared at the serving nodes like every system; where they run today (factory.registry's records and
+// parts.inventory are on debian only, factory.registry's ops-1 replica is empty) is the open point of the HANDOFF.
+net! { pub MAKE;
+    needs [CORE];
+    node foreman-ops-1; node leif-desk;
+    cell factory.registry@1 replicas 2;
+    cell parts.inventory@1 replicas 2;
+    cell parts.source@1 replicas 2;
+    cell printers.health@1 replicas 2;
+    cell tool.run@1 replicas 2;
 }
 
 // ce-ref, the only link (repo:ce/docs/CE-REF-OPENERS-AND-HOME-2026-11-18.md): where a thing is (ref.resolve), its
@@ -196,7 +217,7 @@ net! { pub HOME;
     tab "Home" route "/home/" order 1 needs "home.shell:open" shell home.shell@1;
 }
 
-net! { pub CE_NET; include [HOME, CORE, APPROVALS, CONTROL_ROOM, FOREMAN, FEED, SEARCH, CRM, REFS]; }
+net! { pub CE_NET; include [HOME, CORE, APPROVALS, CONTROL_ROOM, FOREMAN, FEED, SEARCH, CRM, REFS, MAKE]; }
 
 /// The system a cell belongs to, by its api name.
 pub fn system_of(api: &str) -> Option<&'static str> {

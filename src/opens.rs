@@ -66,9 +66,20 @@ pub const CORE_OPENS: &[Opens] = &[
 pub const CAD_OPENS: &[Opens] = &[o("assembly", "apps.shell", 1, "apps.shell::Port", 10, "")];
 pub const MAPS_OPENS: &[Opens] = &[o("map", "apps.shell", 1, "apps.shell::Port", 10, "")];
 
+/// MAKE: the typed things of the search page (SEARCH-PAGE-2026-11-21 section 4), each opened as the view of the cell
+/// that owns it, reading that cell as the viewer. A factory opens its twin at rank 50 once twins are linked (slice 2).
+pub const MAKE_OPENS: &[Opens] = &[
+    o("factory", "factory.registry", 1, "factory.registry::Site", 20, "factory.registry:read"),
+    o("org", "factory.registry", 1, "factory.registry::Site", 20, "factory.registry:read"),
+    o("part", "parts.inventory", 1, "parts.inventory::Card", 20, "parts.inventory:read"),
+    o("part", "parts.source", 1, "parts.source::Offers", 10, "parts.source:source"),
+    o("printer", "printers.health", 1, "printers.health::Panel", 20, "printers.health:read"),
+    o("tool", "tool.run", 1, "tool.run::Tool", 20, "tool.run:list"),
+];
+
 /// Every opener of `CE_NET`.
 pub fn opens() -> Vec<Opens> {
-    [REFS_OPENS, CRM_OPENS, CORE_OPENS, CAD_OPENS, MAPS_OPENS].concat()
+    [REFS_OPENS, CRM_OPENS, CORE_OPENS, CAD_OPENS, MAPS_OPENS, MAKE_OPENS].concat()
 }
 
 /// Where a slot sits on the page.
@@ -97,6 +108,8 @@ pub struct SlotLine {
 
 /// The Home slots of slice 1 (section 8 C). The feed slot is one line the V2 workflow adds (TALK), not here.
 pub const HOME_SLOTS: &[SlotLine] = &[
+    // the search box at the head of Home (SEARCH-PAGE-2026-11-21 section 2): words go to the Search tab
+    SlotLine { name: "search", system: "SEARCH", cell: "search.typed", major: 1, view: "search.typed::Box", area: Area::Head, order: 1, needs: "search.typed:find", when: None },
     SlotLine { name: "calls", system: "CRM", cell: "crm.calls", major: 2, view: "home::CallsToday", area: Area::Main, order: 10, needs: "crm.calls:read", when: Some("crm.calls/List") },
     SlotLine { name: "promises", system: "CRM", cell: "crm.promises", major: 1, view: "home::PromisesDue", area: Area::Main, order: 20, needs: "crm.promises:read", when: Some("crm.promises/List") },
     SlotLine { name: "approve", system: "HOME", cell: "approve.inbox", major: 1, view: "approve.inbox::Pending", area: Area::Main, order: 5, needs: "approve.inbox:read", when: Some("approve.inbox/Badge") },

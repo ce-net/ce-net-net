@@ -18,6 +18,12 @@ takes no `opens` or `slot` lines yet, so `src/opens.rs` lists them beside the sy
 is the opener table open.with@1 reads (pattern, mode, cell, view, rank, needs) and `HOME_SLOTS` the Home slots
 home.shell@1 lays out. Two openers equal on pattern, mode and rank fail `cargo test`.
 
+The search page (repo:ce/docs/SEARCH-PAGE-2026-11-21.md): SEARCH adds cell.search, search.plan and search.typed; MAKE
+places the cells that own the typed results (factory.registry, parts.inventory, parts.source, printers.health,
+tool.run), and `MAKE_OPENS` opens `factory:`, `org:`, `part:`, `printer:`, `tool:` refs in their views. `src/finds.rs`
+is the table search.typed@1 reads: kind, cell, op, the right the viewer must hold for the call to be made, weight and
+deadline. Home gains the `search` slot (Head, order 1, `search.typed::Box`).
+
 `cargo test`: every cell in exactly one system, no leader or record cell off a datacenter node, placement
 foreman-ops-1 first, every unpinned cell wants two replicas, tabs in order.
 Apache-2.0.

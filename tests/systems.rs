@@ -7,7 +7,7 @@ fn systems_every_unpinned_cell_twice_over_the_serving_nodes() {
     let names: Vec<&str> = CE_NET.systems().iter().skip(1).map(|s| s.name).collect();
     let mut want = vec!["HOME", "CORE", "APPROVALS", "CONTROL_ROOM", "FOREMAN"];
     want.extend(FOREMAN_SYSTEMS);
-    want.extend(["FEED", "SEARCH", "CRM", "REFS"]);
+    want.extend(["FEED", "SEARCH", "CRM", "REFS", "MAKE"]);
     assert_eq!(names, want);
     for (sys, c) in CE_NET.all_cells() {
         match c.on {
