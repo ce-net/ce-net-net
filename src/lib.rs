@@ -23,7 +23,7 @@ pub mod links;
 pub mod opens;
 pub use apps::{app, App, APPS};
 pub use finds::{finds, Finds, FINDS};
-pub use links::{link, ref_ok, slug_of, Link, LinkMode};
+pub use links::{link, place_of_path, ref_ok, slug_of, Link, LinkMode};
 pub use opens::{opens, Area, Mode, Opens, SlotLine, HOME_SLOTS};
 
 /// The nodes that serve apps.ce-net.com.
@@ -177,6 +177,9 @@ net! { pub FRONTEND;
     cell site.serve@1 replicas 2;
     cell page.compose@2 replicas 2;
     cell feed.render@1 replicas 2;
+    // the entry's layout (UI-AS-CELLS 11.2): a second capability of the apps-shell program beside apps.shell@1, the
+    // same tab rule; page.compose asks it first and falls back to the tabs without it
+    cell apps.layout@1 replicas 2;
 }
 
 // The person's short list and the business place (repo:ce docs/CRITICAL-DECISIONS-2026-11-21.md Part 2, sections 16
@@ -296,18 +299,7 @@ net! { pub OPS;
     cell net.apply@1 replicas 2 needs [net.plan@1, deploy.rollout@1];
 }
 
-// The shared live workspace (repo:ce docs/LIVE-DEVENV-FINISH-2026-11-21.md, GitHub ce-net/live-devenv): the Code tab's
-// shell is dev.ws, the bridge cell beside each ws-node; it emerges for a viewer holding dev.ws:open once dev.ws answers
-// HealthOp by name. The page itself is ws-node's (apps.ce-net.com/devenv/, through work.show). Debian also runs a
-// ws-node and dev.ws (N1, the keys node) outside this placement; t3@1 (T3 Code as a cell) is ops-1 only and has no tab.
-net! { pub DEVENV;
-    needs [CORE];
-    node foreman-ops-1; node leif-desk;
-    cell dev.ws@1 replicas 2;
-    tab "Code" route "/devenv/" order 14 needs "dev.ws:open" shell dev.ws@1;
-}
-
-net! { pub CE_NET; include [HOME, CORE, APPROVALS, CONTROL_ROOM, FOREMAN, FEED, FRONTEND, SEARCH, CRM, REFS, CONVERSATIONS, ARCHITECTURE, MAKE, NOW, BUSINESS, OPS, DEVENV]; }
+net! { pub CE_NET; include [HOME, CORE, APPROVALS, CONTROL_ROOM, FOREMAN, FEED, FRONTEND, SEARCH, CRM, REFS, CONVERSATIONS, ARCHITECTURE, MAKE, NOW, BUSINESS, OPS]; }
 
 /// The system a cell belongs to, by its api name.
 pub fn system_of(api: &str) -> Option<&'static str> {

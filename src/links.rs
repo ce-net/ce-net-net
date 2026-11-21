@@ -40,8 +40,6 @@ pub const ROWS: &[(&str, LinkMode)] = &[
     ("feed", LinkMode::Alias),
     ("now", LinkMode::Redirect),
     ("business-monitor", LinkMode::Redirect),
-    // the Code tab (DEVENV): its page is ws-node's own, so the row stays off until the entry document hosts it
-    ("devenv", LinkMode::Redirect),
     ("foreman", LinkMode::Alias),
 ];
 
@@ -118,7 +116,9 @@ pub fn link(path: &str, query: &str) -> Option<Link> {
         }
     };
     match (row, rest.len()) {
-        ("shell" | "home", 0) => mk(None),
+        ("shell", 0) => mk(None),
+        // S2 (11.7): the Home row opens the Home place, so a switched `/home/` lands on a script-free entry.
+        ("home", 0) => mk(Some("app:home".into())),
         ("core", 0) if q(query, "view") == Some("architecture") => mk(Some("app:architecture".into())),
         ("core" | "architecture" | "search", 0) => match (row, q(query, "q")) {
             ("search", Some(t)) if !t.is_empty() => mk(Some(format!("app:search/{t}"))),
@@ -127,7 +127,7 @@ pub fn link(path: &str, query: &str) -> Option<Link> {
         ("conversations", 0) => mk(Some("app:conversations".into())),
         ("conversations", 1) => mk(Some(format!("conv:{}", rest[0]))),
         ("approvals" | "control-room" | "ocean" | "foreman" | "feed", _) => mk(sub(&format!("app:{row}"))),
-        ("now" | "business-monitor" | "devenv", 0) => mk(Some(format!("app:{row}"))),
+        ("now" | "business-monitor", 0) => mk(Some(format!("app:{row}"))),
         ("doc", 1) => match q(query, "v") {
             Some(v) => mk(Some(format!("doc:{}@{v}", rest[0]))),
             None => mk(Some(format!("doc:{}", rest[0]))),
@@ -159,4 +159,35 @@ pub fn target(base: &str, l: &Link, query: &str) -> String {
     } else {
         format!("{base}/?{}", parts.join("&"))
     }
+}
+
+/// The place a session's own path stands for (repo:ce/docs/UI-AS-CELLS-2026-11-21.md 11.5), as the ref of a `Shared`
+/// row: `/<seg>/` of `APPS` or of a tab is `app:<seg>`, `/<seg>/<rest>` is `app:<seg>/<rest>`, `/doc/<id>` is
+/// `doc:<id>`; a segment in neither table, an API path or a ref the grammar refuses is `None`. Pure; the path is the
+/// decoded path the gate signed (a query is cut off). A path never adds an ability: the row is drawn as a link out.
+pub fn place_of_path(path: &str) -> Option<String> {
+    let path = path.split(['?', '#']).next().unwrap_or("");
+    if !path.starts_with('/') {
+        return None;
+    }
+    let segs: Vec<&str> = path.split('/').filter(|s| !s.is_empty()).collect();
+    let first = *segs.first()?;
+    if segs.iter().any(|s| *s == "api") {
+        return None;
+    }
+    let r = match (first, &segs[1..]) {
+        ("doc", [id]) => format!("doc:{id}"),
+        (seg, rest) => {
+            let known = crate::apps::app(seg).is_some() || crate::CE_NET.tabs().iter().any(|(_, t)| slug_of(t.route) == seg);
+            if !known {
+                return None;
+            }
+            if rest.is_empty() {
+                format!("app:{seg}")
+            } else {
+                format!("app:{seg}/{}", rest.join("/"))
+            }
+        }
+    };
+    ref_ok(&r).then_some(r)
 }

@@ -10,7 +10,7 @@ fn links_every_row_maps_as_written() {
     use LinkMode::*;
     let golden: &[(&str, &str, &str, LinkMode)] = &[
         ("/shell/", "", "/", Redirect),
-        ("/home/", "", "/", Redirect),
+        ("/home/", "", "/?open=app:home", Redirect),
         ("/core/", "", "/?open=app:core", Redirect),
         ("/core/", "view=architecture", "/?open=app:architecture", Redirect),
         ("/architecture/", "", "/?open=app:architecture", Redirect),
@@ -76,5 +76,29 @@ fn links_ref_grammar() {
     }
     for bad in ["", "app", "evil:x", "app:", "app:a/../b", "doc:x@", "doc:x@1a", "app:a b", "app:a//b", "doc:<x>"] {
         assert!(!ref_ok(bad), "{bad}");
+    }
+}
+
+#[test]
+fn place_of_path_golden() {
+    let golden: &[(&str, Option<&str>)] = &[
+        ("/print-farm/", Some("app:print-farm")),
+        ("/print-farm", Some("app:print-farm")),
+        ("/print-farm/jobs/7", Some("app:print-farm/jobs/7")),
+        ("/approvals/", Some("app:approvals")),
+        ("/approvals/gb-1", Some("app:approvals/gb-1")),
+        ("/doc/102afc34be08", Some("doc:102afc34be08")),
+        ("/doc/", Some("app:doc")),
+        ("/print-farm/?x=1", Some("app:print-farm")),
+        ("/nope/", None),
+        ("/", None),
+        ("", None),
+        ("print-farm/", None),
+        ("/print-farm/api/jobs", None),
+        ("/print-farm/../secrets", None),
+        ("/doc/a b", None),
+    ];
+    for (p, want) in golden {
+        assert_eq!(place_of_path(p).as_deref(), *want, "{p}");
     }
 }
