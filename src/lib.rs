@@ -293,6 +293,7 @@ net! { pub OPS;
     cell test.live@1 replicas 2 needs [state.store@1, health.check@1];
     cell deploy.rollback@1 replicas 2 needs [state.store@1, health.check@1];
     cell deploy.rollout@1 replicas 2 needs [node.place@1, health.check@1, deploy.rollback@1];
+    cell net.apply@1 replicas 2 needs [net.plan@1, deploy.rollout@1];
 }
 
 net! { pub CE_NET; include [HOME, CORE, APPROVALS, CONTROL_ROOM, FOREMAN, FEED, FRONTEND, SEARCH, CRM, REFS, CONVERSATIONS, ARCHITECTURE, MAKE, NOW, BUSINESS, OPS]; }
