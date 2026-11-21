@@ -38,6 +38,8 @@ pub const ROWS: &[(&str, LinkMode)] = &[
     ("ocean", LinkMode::Redirect),
     ("s", LinkMode::Redirect),
     ("feed", LinkMode::Alias),
+    ("now", LinkMode::Redirect),
+    ("business-monitor", LinkMode::Redirect),
     ("foreman", LinkMode::Alias),
 ];
 
@@ -123,6 +125,7 @@ pub fn link(path: &str, query: &str) -> Option<Link> {
         ("conversations", 0) => mk(Some("app:conversations".into())),
         ("conversations", 1) => mk(Some(format!("conv:{}", rest[0]))),
         ("approvals" | "control-room" | "ocean" | "foreman" | "feed", _) => mk(sub(&format!("app:{row}"))),
+        ("now" | "business-monitor", 0) => mk(Some(format!("app:{row}"))),
         ("doc", 1) => match q(query, "v") {
             Some(v) => mk(Some(format!("doc:{}@{v}", rest[0]))),
             None => mk(Some(format!("doc:{}", rest[0]))),

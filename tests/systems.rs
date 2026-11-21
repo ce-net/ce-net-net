@@ -7,7 +7,7 @@ fn systems_every_unpinned_cell_twice_over_the_serving_nodes() {
     let names: Vec<&str> = CE_NET.systems().iter().skip(1).map(|s| s.name).collect();
     let mut want = vec!["HOME", "CORE", "APPROVALS", "CONTROL_ROOM", "FOREMAN"];
     want.extend(FOREMAN_SYSTEMS);
-    want.extend(["FEED", "FRONTEND", "SEARCH", "CRM", "REFS", "CONVERSATIONS", "ARCHITECTURE", "MAKE"]);
+    want.extend(["FEED", "FRONTEND", "SEARCH", "CRM", "REFS", "CONVERSATIONS", "ARCHITECTURE", "MAKE", "NOW", "BUSINESS"]);
     assert_eq!(names, want);
     for (sys, c) in CE_NET.all_cells() {
         match c.on {
@@ -26,7 +26,7 @@ fn approvals_is_its_own_system_and_foreman_one_tab_among_others() {
     assert_eq!(system_of("grant.bundle"), Some("APPROVALS"));
     assert!(!FOREMAN.cells.iter().any(|c| c.cell.name.starts_with("approve.") || c.cell.name == "grant.bundle"));
     let tabs: Vec<(&str, &str)> = CE_NET.tabs().iter().map(|(s, t)| (*s, t.route)).collect();
-    assert_eq!(tabs, [("HOME", "/home/"), ("FOREMAN", "/foreman/"), ("FEED", "/feed/"), ("CONVERSATIONS", "/conversations/"), ("SEARCH", "/search/"), ("ARCHITECTURE", "/architecture/"), ("APPROVALS", "/approvals/"), ("CONTROL_ROOM", "/control-room/"), ("CORE", "/core/")]);
+    assert_eq!(tabs, [("HOME", "/home/"), ("NOW", "/now/"), ("BUSINESS", "/business-monitor/"), ("FOREMAN", "/foreman/"), ("FEED", "/feed/"), ("CONVERSATIONS", "/conversations/"), ("SEARCH", "/search/"), ("ARCHITECTURE", "/architecture/"), ("APPROVALS", "/approvals/"), ("CONTROL_ROOM", "/control-room/"), ("CORE", "/core/")]);
 }
 
 #[test]

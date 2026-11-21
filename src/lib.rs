@@ -179,6 +179,26 @@ net! { pub FRONTEND;
     cell feed.render@1 replicas 2;
 }
 
+// The person's short list and the business place (repo:ce docs/CRITICAL-DECISIONS-2026-11-21.md Part 2, sections 16
+// to 19). person.now@1 serves person.backlog@1 and person.handoff@1 from its process; operator.run@1 serves
+// operator.track, operator.profile and operator.report; business.view@1 is the render:html of the business.monitor cell
+// beside contracts.list@1, finance.invoices@1, finance.revenue@1 and operations.now@1. Both tabs open in place in the
+// entry (/x/?open=app:now, app:business-monitor; the old /business/ page stays a place of apps.rs). Declared over both serving nodes like every system; installed on foreman-ops-1 first (HANDOFF in each repo).
+net! { pub NOW;
+    needs [FRONTEND];
+    node foreman-ops-1; node leif-desk;
+    cell person.now@1 replicas 2;
+    cell operator.run@1 replicas 2;
+    tab "Now" route "/now/" order 2 needs "person.now:read" shell person.now@1;
+}
+
+net! { pub BUSINESS;
+    needs [NOW];
+    node foreman-ops-1; node leif-desk;
+    cell business.view@1 replicas 2;
+    tab "Business monitor" route "/business-monitor/" order 3 needs "business.view:html" shell business.view@1;
+}
+
 net! { pub SEARCH;
     needs [CORE];
     node foreman-ops-1; node leif-desk;
@@ -258,7 +278,7 @@ net! { pub CONVERSATIONS;
     tab "Conversations" route "/conversations/" order 12 needs "ai.session:list" shell ai.session@1;
 }
 
-net! { pub CE_NET; include [HOME, CORE, APPROVALS, CONTROL_ROOM, FOREMAN, FEED, FRONTEND, SEARCH, CRM, REFS, CONVERSATIONS, ARCHITECTURE, MAKE]; }
+net! { pub CE_NET; include [HOME, CORE, APPROVALS, CONTROL_ROOM, FOREMAN, FEED, FRONTEND, SEARCH, CRM, REFS, CONVERSATIONS, ARCHITECTURE, MAKE, NOW, BUSINESS]; }
 
 /// The system a cell belongs to, by its api name.
 pub fn system_of(api: &str) -> Option<&'static str> {
