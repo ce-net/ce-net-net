@@ -18,8 +18,10 @@ pub use cell_net::{CellRef, CellSpec, Network, Tab};
 use cell_net::net;
 
 pub mod finds;
+pub mod links;
 pub mod opens;
 pub use finds::{finds, Finds, FINDS};
+pub use links::{link, ref_ok, slug_of, Link, LinkMode};
 pub use opens::{opens, Area, Mode, Opens, SlotLine, HOME_SLOTS};
 
 /// The nodes that serve apps.ce-net.com.
@@ -163,7 +165,7 @@ net! { pub FEED;
 }
 
 // The frontend as cells (repo:ce/docs/UI-AS-CELLS-2026-11-21.md, slice 1): site.serve@1 holds http.serve for
-// apps.ce-net.com/x/ and has no data right, page.compose@1 fits the pieces a viewer's chain covers, feed.render@1 is the
+// apps.ce-net.com/x/ and has no data right, page.compose@2 (the entry route and `?open=`, section 9) fits the pieces a viewer's chain covers, feed.render@1 is the
 // feed's render:html piece (feed.view@2 stays the data and the live view). No tab yet: /x/feed/ is a shadow beside /feed/
 // and /foreman/. Declared over both serving nodes like every system; installed on foreman-ops-1 only until step 2
 // (win-b591's mesh-wide install, repo:site-serve docs/SLICE-1.md).
@@ -171,7 +173,7 @@ net! { pub FRONTEND;
     needs [FEED];
     node foreman-ops-1; node leif-desk;
     cell site.serve@1 replicas 2;
-    cell page.compose@1 replicas 2;
+    cell page.compose@2 replicas 2;
     cell feed.render@1 replicas 2;
 }
 
