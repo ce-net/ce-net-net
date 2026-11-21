@@ -217,7 +217,22 @@ net! { pub HOME;
     tab "Home" route "/home/" order 1 needs "home.shell:open" shell home.shell@1;
 }
 
-net! { pub CE_NET; include [HOME, CORE, APPROVALS, CONTROL_ROOM, FOREMAN, FEED, SEARCH, CRM, REFS, MAKE]; }
+// The Architecture atlas (repo:ce/docs/ARCHITECTURE-ATLAS-APP-2026-11-18.md 7.4): arch.map draws ce-net from what its
+// cells report and ships its own view; arch.notes keeps the notes on it as rows. The tab's shell is arch.map itself; it
+// emerges for a viewer holding arch.map:see once arch.map answers HealthOp by name. The gate route /architecture/ is
+// added in a quiet window; until then apps.shell opens the tab's view under Core (/core/?view=architecture).
+// arch.map also reads cell.registry@2, cells.model@1, cells.graph@1, cell.search@1 and call.pulse@1 (its cell.toml
+// depends_on): net! takes a need only when a system places it, and no system places those yet, so they are not
+// written here; the design's line names cell.registry@2 and cells.model@1 and gains them when they are placed.
+net! { pub ARCHITECTURE;
+    needs [CORE, REFS];
+    node foreman-ops-1; node leif-desk;
+    cell arch.map@1 replicas 2 needs [site.cellmap@1, arch.notes@1];
+    cell arch.notes@1 replicas 2 needs [state.store@1];
+    tab "Architecture" route "/architecture/" order 16 needs "arch.map:see" shell arch.map@1;
+}
+
+net! { pub CE_NET; include [HOME, CORE, APPROVALS, CONTROL_ROOM, FOREMAN, FEED, SEARCH, CRM, REFS, ARCHITECTURE, MAKE]; }
 
 /// The system a cell belongs to, by its api name.
 pub fn system_of(api: &str) -> Option<&'static str> {

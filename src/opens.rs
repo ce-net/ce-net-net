@@ -59,6 +59,10 @@ pub const CORE_OPENS: &[Opens] = &[
     o("node", "site.cellmap", 1, "site.cellmap::Node", 50, "site.cellmap:read"),
     o("view", "apps.shell", 1, "apps.shell::Mount", 50, ""),
     o("web", "apps.shell", 1, "apps.shell::Outside", 1, ""),
+    // the Architecture atlas opens a system or a design piece where it stands in the map (ATLAS 7.4); `cell` and `node`
+    // keep site.cellmap at rank 50
+    o("system", "arch.map", 1, "arch.map::Architecture", 40, "arch.map:see"),
+    o("piece", "arch.map", 1, "arch.map::Architecture", 40, "arch.map:see"),
 ];
 
 /// CAD and MAPS until `cad.view` and `maps.view` exist: the static sites of ours wrapped by a port view at rank 10

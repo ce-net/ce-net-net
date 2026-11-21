@@ -7,7 +7,7 @@ fn systems_every_unpinned_cell_twice_over_the_serving_nodes() {
     let names: Vec<&str> = CE_NET.systems().iter().skip(1).map(|s| s.name).collect();
     let mut want = vec!["HOME", "CORE", "APPROVALS", "CONTROL_ROOM", "FOREMAN"];
     want.extend(FOREMAN_SYSTEMS);
-    want.extend(["FEED", "SEARCH", "CRM", "REFS", "MAKE"]);
+    want.extend(["FEED", "SEARCH", "CRM", "REFS", "ARCHITECTURE", "MAKE"]);
     assert_eq!(names, want);
     for (sys, c) in CE_NET.all_cells() {
         match c.on {
@@ -26,7 +26,7 @@ fn approvals_is_its_own_system_and_foreman_one_tab_among_others() {
     assert_eq!(system_of("grant.bundle"), Some("APPROVALS"));
     assert!(!FOREMAN.cells.iter().any(|c| c.cell.name.starts_with("approve.") || c.cell.name == "grant.bundle"));
     let tabs: Vec<(&str, &str)> = CE_NET.tabs().iter().map(|(s, t)| (*s, t.route)).collect();
-    assert_eq!(tabs, [("HOME", "/home/"), ("FOREMAN", "/foreman/"), ("FEED", "/feed/"), ("SEARCH", "/search/"), ("APPROVALS", "/approvals/"), ("CONTROL_ROOM", "/control-room/"), ("CORE", "/core/")]);
+    assert_eq!(tabs, [("HOME", "/home/"), ("FOREMAN", "/foreman/"), ("FEED", "/feed/"), ("SEARCH", "/search/"), ("ARCHITECTURE", "/architecture/"), ("APPROVALS", "/approvals/"), ("CONTROL_ROOM", "/control-room/"), ("CORE", "/core/")]);
 }
 
 #[test]
@@ -112,5 +112,39 @@ fn the_feed_tab_is_offered_only_with_feed_view_read() {
     assert!(covers(&["feed.view:*"], t.needs));
     for no in [&["feed.view:mark"][..], &["feed.view:health"], &["foreman.shell:open"], &["search.hybrid:find"], &[]] {
         assert!(!covers(no, t.needs), "{no:?} must not see the Feed tab");
+    }
+}
+
+/// The Architecture tab (ATLAS 7.4): offered only to a chain holding `arch.map:see`; its shell is arch.map itself, in
+/// its own system with arch.notes; every name it places resolves.
+#[test]
+fn the_architecture_tab_is_offered_only_with_arch_map_see() {
+    let t: Vec<_> = CE_NET.tabs().into_iter().filter(|(_, t)| t.route == "/architecture/").collect();
+    assert_eq!(t.len(), 1);
+    let (sys, t) = &t[0];
+    assert_eq!((*sys, t.title, t.needs, t.shell.name, t.shell.major, t.order), ("ARCHITECTURE", "Architecture", "arch.map:see", "arch.map", 1, 16));
+    let covers = |abilities: &[&str], right: &str| abilities.iter().any(|a| *a == right || *a == "*" || a.strip_suffix(":*").map_or(false, |d| right.starts_with(&format!("{d}:"))));
+    for yes in [&["arch.map:see"][..], &["arch.map:*"], &["*"]] {
+        assert!(covers(yes, t.needs), "{yes:?}");
+    }
+    for no in [&[][..], &["arch.map:internal"], &["arch.notes:write", "arch.notes:read"], &["site.cellmap:read"]] {
+        assert!(!covers(no, t.needs), "{no:?} must not see the Architecture tab");
+    }
+    // every name ARCHITECTURE places resolves: its cells to it, its nodes to NODES, its needs to systems, the cells it
+    // needs to a placed cell
+    assert_eq!(system_of("arch.map"), Some("ARCHITECTURE"));
+    assert_eq!(system_of("arch.notes"), Some("ARCHITECTURE"));
+    for n in ARCHITECTURE.nodes {
+        assert!(NODES.iter().any(|x| x.name == *n), "{n}");
+    }
+    let systems: Vec<&str> = CE_NET.systems().iter().map(|s| s.name).collect();
+    for s in ARCHITECTURE.needs {
+        assert!(systems.contains(&s.name), "{}", s.name);
+    }
+    for c in ARCHITECTURE.cells {
+        assert_eq!(c.replicas, 2);
+        for need in c.needs {
+            assert!(system_of(need.name).is_some(), "{} needs {}", c.cell.name, need.name);
+        }
     }
 }

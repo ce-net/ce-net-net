@@ -54,6 +54,8 @@ fn slice_1_table() {
         assert_eq!(view_of(k)[0], "ref.view::Record", "{k}");
     }
     assert_eq!(view_of("cell")[0], "site.cellmap::Cell");
+    assert_eq!(view_of("system")[0], "arch.map::Architecture");
+    assert_eq!(view_of("piece")[0], "arch.map::Architecture");
     assert_eq!(view_of("node")[0], "site.cellmap::Node");
     assert_eq!(view_of("assembly")[0], "apps.shell::Port");
     assert_eq!(view_of("map")[0], "apps.shell::Port");
