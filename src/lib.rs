@@ -289,6 +289,7 @@ net! { pub OPS;
     cell node.place@1 replicas 2;
     cell health.check@1 replicas 2 needs [state.store@1];
     cell drift.check@1 replicas 2 needs [state.store@1, health.check@1];
+    cell net.plan@1 replicas 2 needs [state.store@1, node.place@1, drift.check@1];
 }
 
 net! { pub CE_NET; include [HOME, CORE, APPROVALS, CONTROL_ROOM, FOREMAN, FEED, FRONTEND, SEARCH, CRM, REFS, CONVERSATIONS, ARCHITECTURE, MAKE, NOW, BUSINESS, OPS]; }

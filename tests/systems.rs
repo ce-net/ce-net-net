@@ -170,7 +170,7 @@ fn the_conversations_tab_is_offered_only_with_ai_session_list() {
 #[test]
 fn ops_is_the_installed_ops_cells_and_has_no_tab() {
     let cells: Vec<&str> = OPS.cells.iter().map(|c| c.cell.name).collect();
-    assert_eq!(cells, vec!["cli.provider", "node.place", "health.check", "drift.check"]);
+    assert_eq!(cells, vec!["cli.provider", "node.place", "health.check", "drift.check", "net.plan"]);
     assert!(CE_NET.tabs().iter().all(|(s, _)| *s != "OPS"));
     assert_eq!(OPS.nodes, SERVING);
     for c in OPS.cells {
