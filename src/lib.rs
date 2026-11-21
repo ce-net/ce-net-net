@@ -278,7 +278,20 @@ net! { pub CONVERSATIONS;
     tab "Conversations" route "/conversations/" order 12 needs "ai.session:list" shell ai.session@1;
 }
 
-net! { pub CE_NET; include [HOME, CORE, APPROVALS, CONTROL_ROOM, FOREMAN, FEED, FRONTEND, SEARCH, CRM, REFS, CONVERSATIONS, ARCHITECTURE, MAKE, NOW, BUSINESS]; }
+// The ops cells that deploy and check cells (repo:ce/docs/OPS-CELLS-2026-11-21.md 8.6). No tab: the panel is cr.ops in
+// the control room. A cell enters OPS in the commit of its install handoff, one per cell, because health.check and
+// net.plan treat every placed cell as wanted from then on; the order of `needs` is net.plan's and the install order.
+// node.place also provides node.facts@1 (its second capability, same process).
+net! { pub OPS;
+    needs [CORE, SCHEDULE];
+    node foreman-ops-1; node leif-desk;
+    cell cli.provider@1 replicas 2;
+    cell node.place@1 replicas 2;
+    cell health.check@1 replicas 2 needs [state.store@1];
+    cell drift.check@1 replicas 2 needs [state.store@1, health.check@1];
+}
+
+net! { pub CE_NET; include [HOME, CORE, APPROVALS, CONTROL_ROOM, FOREMAN, FEED, FRONTEND, SEARCH, CRM, REFS, CONVERSATIONS, ARCHITECTURE, MAKE, NOW, BUSINESS, OPS]; }
 
 /// The system a cell belongs to, by its api name.
 pub fn system_of(api: &str) -> Option<&'static str> {

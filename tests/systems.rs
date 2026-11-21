@@ -7,7 +7,7 @@ fn systems_every_unpinned_cell_twice_over_the_serving_nodes() {
     let names: Vec<&str> = CE_NET.systems().iter().skip(1).map(|s| s.name).collect();
     let mut want = vec!["HOME", "CORE", "APPROVALS", "CONTROL_ROOM", "FOREMAN"];
     want.extend(FOREMAN_SYSTEMS);
-    want.extend(["FEED", "FRONTEND", "SEARCH", "CRM", "REFS", "CONVERSATIONS", "ARCHITECTURE", "MAKE", "NOW", "BUSINESS"]);
+    want.extend(["FEED", "FRONTEND", "SEARCH", "CRM", "REFS", "CONVERSATIONS", "ARCHITECTURE", "MAKE", "NOW", "BUSINESS", "OPS"]);
     assert_eq!(names, want);
     for (sys, c) in CE_NET.all_cells() {
         match c.on {
@@ -163,4 +163,23 @@ fn the_conversations_tab_is_offered_only_with_ai_session_list() {
     for no in [&["ai.session:read"][..], &["ai.session:health"], &["feed.view:read"], &[]] {
         assert!(!covers(no, t.needs), "{no:?} must not see the Conversations tab");
     }
+}
+
+/// OPS (repo:ce/docs/OPS-CELLS-2026-11-21.md 8.6): the ops cells installed so far, no tab, on both serving nodes, each
+/// cell's needs placed somewhere in CE_NET.
+#[test]
+fn ops_is_the_installed_ops_cells_and_has_no_tab() {
+    let cells: Vec<&str> = OPS.cells.iter().map(|c| c.cell.name).collect();
+    assert_eq!(cells, vec!["cli.provider", "node.place", "health.check", "drift.check"]);
+    assert!(CE_NET.tabs().iter().all(|(s, _)| *s != "OPS"));
+    assert_eq!(OPS.nodes, SERVING);
+    for c in OPS.cells {
+        assert_eq!(c.replicas, 2);
+        assert!(!is_planned(c.cell.name));
+        for need in c.needs {
+            assert!(system_of(need.name).is_some(), "{} needs {}", c.cell.name, need.name);
+        }
+        assert_eq!(nodes_of(c.cell.name), vec!["foreman-ops-1", "leif-desk"]);
+    }
+    assert_eq!(system_of("health.check"), Some("OPS"));
 }
