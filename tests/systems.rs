@@ -7,7 +7,7 @@ fn systems_every_unpinned_cell_twice_over_the_serving_nodes() {
     let names: Vec<&str> = CE_NET.systems().iter().skip(1).map(|s| s.name).collect();
     let mut want = vec!["HOME", "CORE", "APPROVALS", "CONTROL_ROOM", "FOREMAN"];
     want.extend(FOREMAN_SYSTEMS);
-    want.extend(["FEED", "SEARCH", "CRM", "REFS", "ARCHITECTURE", "MAKE"]);
+    want.extend(["FEED", "SEARCH", "CRM", "REFS", "CONVERSATIONS", "ARCHITECTURE", "MAKE"]);
     assert_eq!(names, want);
     for (sys, c) in CE_NET.all_cells() {
         match c.on {
@@ -26,7 +26,7 @@ fn approvals_is_its_own_system_and_foreman_one_tab_among_others() {
     assert_eq!(system_of("grant.bundle"), Some("APPROVALS"));
     assert!(!FOREMAN.cells.iter().any(|c| c.cell.name.starts_with("approve.") || c.cell.name == "grant.bundle"));
     let tabs: Vec<(&str, &str)> = CE_NET.tabs().iter().map(|(s, t)| (*s, t.route)).collect();
-    assert_eq!(tabs, [("HOME", "/home/"), ("FOREMAN", "/foreman/"), ("FEED", "/feed/"), ("SEARCH", "/search/"), ("ARCHITECTURE", "/architecture/"), ("APPROVALS", "/approvals/"), ("CONTROL_ROOM", "/control-room/"), ("CORE", "/core/")]);
+    assert_eq!(tabs, [("HOME", "/home/"), ("FOREMAN", "/foreman/"), ("FEED", "/feed/"), ("CONVERSATIONS", "/conversations/"), ("SEARCH", "/search/"), ("ARCHITECTURE", "/architecture/"), ("APPROVALS", "/approvals/"), ("CONTROL_ROOM", "/control-room/"), ("CORE", "/core/")]);
 }
 
 #[test]
@@ -146,5 +146,21 @@ fn the_architecture_tab_is_offered_only_with_arch_map_see() {
         for need in c.needs {
             assert!(system_of(need.name).is_some(), "{} needs {}", c.cell.name, need.name);
         }
+    }
+}
+
+/// The Conversations tab (ai.session@1, slice 2 of AI-AS-CELLS): offered only to a chain holding `ai.session:list`;
+/// its shell is ai.session itself, in its own system.
+#[test]
+fn the_conversations_tab_is_offered_only_with_ai_session_list() {
+    let t: Vec<_> = CE_NET.tabs().into_iter().filter(|(_, t)| t.route == "/conversations/").collect();
+    assert_eq!(t.len(), 1);
+    let (sys, t) = &t[0];
+    assert_eq!((*sys, t.title, t.needs, t.shell.name, t.shell.major, t.order), ("CONVERSATIONS", "Conversations", "ai.session:list", "ai.session", 1, 12));
+    assert!(CE_NET.all_cells().iter().any(|(s, c)| *s == "CONVERSATIONS" && c.cell.name == "ai.session" && c.replicas == 2));
+    let covers = |abilities: &[&str], right: &str| abilities.iter().any(|a| *a == right || *a == "*" || a.strip_suffix(":*").map_or(false, |d| right.starts_with(&format!("{d}:"))));
+    assert!(covers(&["ai.session:list"], t.needs) && covers(&["ai.session:*"], t.needs));
+    for no in [&["ai.session:read"][..], &["ai.session:health"], &["feed.view:read"], &[]] {
+        assert!(!covers(no, t.needs), "{no:?} must not see the Conversations tab");
     }
 }

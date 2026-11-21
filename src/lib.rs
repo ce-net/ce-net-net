@@ -232,7 +232,16 @@ net! { pub ARCHITECTURE;
     tab "Architecture" route "/architecture/" order 16 needs "arch.map:see" shell arch.map@1;
 }
 
-net! { pub CE_NET; include [HOME, CORE, APPROVALS, CONTROL_ROOM, FOREMAN, FEED, SEARCH, CRM, REFS, ARCHITECTURE, MAKE]; }
+// Every AI conversation of the realm in one list (repo:ce/docs/AI-AS-CELLS-2026-11-18.md slice 2): the tab's shell
+// is ai.session itself; it emerges for a viewer holding ai.session:list once ai.session answers HealthOp by name.
+net! { pub CONVERSATIONS;
+    needs [CORE];
+    node foreman-ops-1; node leif-desk;
+    cell ai.session@1 replicas 2;
+    tab "Conversations" route "/conversations/" order 12 needs "ai.session:list" shell ai.session@1;
+}
+
+net! { pub CE_NET; include [HOME, CORE, APPROVALS, CONTROL_ROOM, FOREMAN, FEED, SEARCH, CRM, REFS, CONVERSATIONS, ARCHITECTURE, MAKE]; }
 
 /// The system a cell belongs to, by its api name.
 pub fn system_of(api: &str) -> Option<&'static str> {
