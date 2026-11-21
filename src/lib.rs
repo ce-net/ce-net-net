@@ -21,7 +21,7 @@ pub mod apps;
 pub mod finds;
 pub mod links;
 pub mod opens;
-pub use apps::{app, App, APPS};
+pub use apps::{app, App, APPS, NEON_PAGES};
 pub use finds::{finds, Finds, FINDS};
 pub use links::{link, place_of_path, ref_ok, slug_of, Link, LinkMode};
 pub use opens::{opens, Area, Mode, Opens, SlotLine, HOME_SLOTS};

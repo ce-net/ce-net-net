@@ -97,7 +97,19 @@ pub const APPS: &[App] = &[
     a("microduck", "Microduck", "/microduck/"),
     a("huey", "Huey", "/huey/"),
     a("huey-sound", "Huey sound", "/huey-sound/"),
+    // Neon's pages (Gemini 4 Neon on macbook, repo:ce/docs/NEON-INTEGRATION-2026-11-21.md): served by its http.expose
+    // on the Mac's tailnet address, not by the gate, so they are the owner's alone and open as a link out (only a
+    // device on the tailnet reaches them). Their figures are computed in the browser (demo data) until each page reads
+    // its cell through http.expose; the cells behind them answer HealthOp from ops-1 (repo:ce tools/neon-cells).
+    o("mesh-hub", "Mesh hub (Neon)", "http://100.112.251.83:8795/mesh-hub/"),
+    o("edu-anim3d", "3D lessons (Neon)", "http://100.112.251.83:8795/edu-anim3d/"),
+    o("mfg-twin3d", "Factory twin (Neon)", "http://100.112.251.83:8795/mfg-twin3d/"),
+    o("venture-forge", "Venture forge (Neon)", "http://100.112.251.83:8795/venture-forge/"),
+    o("critic-loop", "Critic loop (Neon)", "http://100.112.251.83:8795/critic-loop/"),
 ];
+
+/// The door of Neon's http.expose on macbook: the one origin outside the gate a place may link to, owner-only.
+pub const NEON_PAGES: &str = "http://100.112.251.83:8795/";
 
 /// The place for `seg`, if it is one.
 pub fn app(seg: &str) -> Option<&'static App> {
